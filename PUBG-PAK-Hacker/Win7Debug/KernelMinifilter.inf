@@ -1,0 +1,87 @@
+;
+; KernelMinifilter.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=ActivityMonitor ; TODO: edit Class
+ClassGuid={78A1C341-4539-11d3-B88D-00C04FAD5171} ; TODO: edit ClassGuid
+Provider    = %ProviderString%
+CatalogFile=Kernel-Minifilter.cat
+DriverVer=03/09/2018,19.58.43.389
+
+[DestinationDirs]
+DefaultDestDir          = 12
+NullFilter.DriverFiles  = 12            ;%windir%\system32\drivers
+
+;;
+;; Default install sections
+;;
+
+[DefaultInstall]
+OptionDesc  = %ServiceDescription%
+CopyFiles           = MiniFilter.DriverFiles
+
+[DefaultInstall.Services]
+AddService          = %ServiceName%,,MiniFilter.Service
+
+;;
+;; Default uninstall sections
+;;
+
+[DefaultUninstall]
+DelFiles   = MiniFilter.DriverFiles
+
+[DefaultUninstall.Services]
+DelService = %ServiceName%,0x200      ;Ensure service is stopped before deleting
+
+;
+; Services Section
+;
+
+[MiniFilter.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = "FltMgr"
+ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 3                            ;SERVICE_DEMAND_START
+ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"
+AddReg           = MiniFilter.AddRegistry
+
+[MiniFilter.AddRegistry]
+HKR,,"SupportedFeatures",0x00010001,0x3
+HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+
+;
+; Copy Files
+;
+
+[MiniFilter.DriverFiles]
+%DriverName%.sys
+
+[SourceDisksFiles]
+Kernel-Minifilter.sys = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+[MiniFilter.DriverFiles]
+%DriverName%.sys
+[Strings]
+; TODO - Add your manufacturer
+ProviderString          = "TODO-Set-Provider"
+ServiceDescription      = "Kernel-Minifilter Driver"
+ServiceName             = "Kernel-Minifilter"
+DriverName              = "Kernel-Minifilter"
+DiskId1                 = "Kernel-Minifilter Device Installation Disk"
+
+;Instances specific information.
+DefaultInstance         = "Kernel-Minifilter Instance"
+Instance1.Name          = "Kernel-Minifilter Instance"
+Instance1.Altitude      = "385100" ;
+Instance1.Flags         = 0x0              ; Allow all attachments
+
